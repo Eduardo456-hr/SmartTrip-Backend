@@ -51,5 +51,70 @@ namespace SocialMedia.Api.Controllers
                 return StatusCode(500, new { message = "Error al registrar el pasajero", error = ex.Message });
             }
         }
+        [HttpDelete]
+        public async Task<IActionResult> DeletePasajero(int id)
+        {
+            try
+            {
+                var pasajero = await _pasajeroService.GetPasajeroByIdAsync(id);
+                if (pasajero == null)
+                {
+                    return NotFound(new { message = "Pasajero no encontrado" });
+                }
+                await _pasajeroService.DeletePasajero(pasajero);
+                return Ok(new { message = "Pasajero eliminado correctamente" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al eliminar el pasajero", error = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdatePasajero(PasajeroDto pasajeroDto)
+        {
+            var validationResult = await _validator.ValidateAsync(pasajeroDto);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    message = "Error de validación",
+                    errors = validationResult.Errors.Select(e => new { field = e.PropertyName, error = e.ErrorMessage })
+                });
+            }
+            try
+            {
+                var existingPasajero = await _pasajeroService.GetPasajeroByIdAsync(pasajeroDto.Id);
+                if (existingPasajero == null)
+                {
+                    return NotFound(new { message = "Pasajero no encontrado" });
+                }
+                var pasajeroToUpdate = _mapper.Map<Pasajero>(pasajeroDto);
+                await _pasajeroService.UpdatePasajero(pasajeroToUpdate);
+                var resultDto = _mapper.Map<PasajeroDto>(pasajeroToUpdate);
+                return Ok(new ApiResponse<PasajeroDto>(resultDto));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al actualizar el pasajero", error = ex.Message });
+            }
+
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllPasajeros()
+        {
+            try
+            {
+                var pasajeros = await _pasajeroService.GetAllPasajerosAsync();
+                var pasajerosDto = _mapper.Map<IEnumerable<PasajeroDto>>(pasajeros);
+                return Ok(new ApiResponse<IEnumerable<PasajeroDto>>(pasajerosDto));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener los pasajeros", error = ex.Message });
+            }
+
+        }
     }
 }

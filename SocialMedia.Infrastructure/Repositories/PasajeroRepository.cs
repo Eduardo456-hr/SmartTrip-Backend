@@ -28,5 +28,27 @@ namespace SocialMedia.Infrastructure.Repositories
         {
             return await _context.Pasajeros.FirstOrDefaultAsync(x => x.Correo == correo);
         }
+
+        public async Task<IEnumerable<Pasajero>> GetAllPasajerosAsync()
+        {
+            return await _context.Pasajeros.ToListAsync();
+        }
+
+        public async Task<Pasajero> GetPasajeroByIdAsync(int id)
+        {
+            return await _context.Pasajeros.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task UpdatePasajero(Pasajero pasajero)
+        {
+            _context.Pasajeros.Update(pasajero);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeletePasajero(Pasajero pasajero)
+        {
+            _context.Pasajeros.Remove(pasajero);
+            await _context.SaveChangesAsync();
+        }
     }
 }
