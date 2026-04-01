@@ -71,5 +71,34 @@ namespace SocialMedia.Api.Controllers
                 return StatusCode(500, new { message = "Error al registrar el conductor", error = ex.Message });
             }
         }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateConductor(int id, ConductorDto conductorDto)
+        {
+            try
+            {
+                var conductor = _mapper.Map<Conductore>(conductorDto);
+
+                await _conductorService.UpdateConductor(id, conductor);
+
+                return Ok(new { message = "Conductor actualizado correctamente" });
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteConductor(int id)
+        {
+            try
+            {
+                await _conductorService.DeleteConductor(id);
+                return Ok(new { message = "Conductor eliminado correctamente" });
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
     }
 }

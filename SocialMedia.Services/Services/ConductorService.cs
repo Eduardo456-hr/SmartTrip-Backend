@@ -26,5 +26,32 @@ namespace SocialMedia.Services.Services
         {
             return await _conductorRepository.GetAllConductoresAsync();
         }
+        public async Task UpdateConductor(int id, Conductore conductor)
+        {
+            var existing = await _conductorRepository.GetConductorByIdAsync(id);
+
+            if (existing == null)
+                throw new Exception("Conductor no encontrado");
+
+            // Actualizar campos
+            existing.Nombres = conductor.Nombres;
+            existing.Apellidos = conductor.Apellidos;
+            existing.Correo = conductor.Correo;
+            existing.Contrasena = conductor.Contrasena;
+            existing.Telefono = conductor.Telefono;
+            existing.NumeroLicencia = conductor.NumeroLicencia;
+
+            await _conductorRepository.UpdateConductor(existing);
+        }
+
+        public async Task DeleteConductor(int id)
+        {
+            var existing = await _conductorRepository.GetConductorByIdAsync(id);
+
+            if (existing == null)
+                throw new Exception("Conductor no encontrado");
+
+            await _conductorRepository.DeleteConductor(existing);
+        }
     }
 }

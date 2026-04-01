@@ -38,5 +38,16 @@ namespace SocialMedia.Infrastructure.Repositories
         {
             return await _context.Conductores.FirstOrDefaultAsync(x => x.Correo == correo);
         }
+        public async Task UpdateConductor(Conductore conductor)
+        {
+            _context.Conductores.Update(conductor);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteConductor(Conductore conductor)
+        {
+            _context.Conductores.Remove(conductor);
+            await _context.SaveChangesAsync();
+        }
     }
 }
