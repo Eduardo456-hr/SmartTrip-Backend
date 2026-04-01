@@ -59,6 +59,8 @@ namespace SocialMedia.Api
 
             builder.Services.AddTransient<IAuthService, AuthService>();
             builder.Services.AddTransient<FluentValidation.IValidator<SocialMedia.Core.DTOs.LoginDto>, SocialMedia.Services.Validators.LoginDtoValidator>();
+
+
             #endregion
 
 
