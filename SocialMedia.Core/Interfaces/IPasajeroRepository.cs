@@ -12,5 +12,10 @@ namespace SocialMedia.Core.Interfaces
         Task InsertPasajero(Pasajero pasajero);
 
         Task<Pasajero> GetPasajeroByCorreoAsync(string correo);
+        Task<IEnumerable<Pasajero>> GetAllPasajerosAsync();
+        Task<Pasajero> GetPasajeroByIdAsync(int id);
+        Task UpdatePasajero(Pasajero pasajero);
+        Task DeletePasajero(Pasajero pasajero);
+
     }
 }

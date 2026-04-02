@@ -11,6 +11,10 @@ namespace SocialMedia.Services.Interfaces
     {
         Task InsertConductor(Conductore conductor);
         Task<IEnumerable<Conductore>> GetAllConductoresAsync();
+        Task UpdateConductor(int id, Conductore conductor);
+        Task DeleteConductor(int id);
+
+
 
     }
 }

@@ -15,5 +15,8 @@ namespace SocialMedia.Core.Interfaces
 
         Task<Conductore> GetConductorByCorreoAsync(string correo);
 
+        Task UpdateConductor(Conductore conductor);
+        Task DeleteConductor(Conductore conductor);
+
     }
 }
