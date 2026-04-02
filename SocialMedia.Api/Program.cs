@@ -50,9 +50,11 @@ namespace SocialMedia.Api
             builder.Services.AddTransient<FluentValidation.IValidator<SocialMedia.Core.DTOs.ConductorDto>, SocialMedia.Services.Validators.ConductorDtoValidator>();
 
             #region Registrar conductores, pasajeros y autenticación
-            builder.Services.AddTransient<IConductorService, ConductorService>();
+            // builder.Services.AddTransient<IConductorService, ConductorService>();
 
-            builder.Services.AddTransient<IPasajeroRepository, PasajeroRepository>();
+            // builder.Services.AddTransient<IPasajeroRepository, PasajeroRepository>();
+
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             builder.Services.AddTransient<IPasajeroService, PasajeroService>();
             builder.Services.AddTransient<FluentValidation.IValidator<SocialMedia.Core.DTOs.PasajeroDto>, SocialMedia.Services.Validators.PasajeroDtoValidator>();

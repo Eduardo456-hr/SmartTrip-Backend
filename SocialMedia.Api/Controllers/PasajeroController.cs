@@ -51,7 +51,7 @@ namespace SocialMedia.Api.Controllers
                 return StatusCode(500, new { message = "Error al registrar el pasajero", error = ex.Message });
             }
         }
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePasajero(int id)
         {
             try
@@ -70,9 +70,11 @@ namespace SocialMedia.Api.Controllers
             }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> UpdatePasajero(PasajeroDto pasajeroDto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdatePasajero(int id, [FromBody] PasajeroDto pasajeroDto)
         {
+            pasajeroDto.Id = id;
+
             var validationResult = await _validator.ValidateAsync(pasajeroDto);
             if (!validationResult.IsValid)
             {
@@ -82,23 +84,34 @@ namespace SocialMedia.Api.Controllers
                     errors = validationResult.Errors.Select(e => new { field = e.PropertyName, error = e.ErrorMessage })
                 });
             }
+
             try
             {
-                var existingPasajero = await _pasajeroService.GetPasajeroByIdAsync(pasajeroDto.Id);
+                var existingPasajero = await _pasajeroService.GetPasajeroByIdAsync(id);
+
                 if (existingPasajero == null)
                 {
                     return NotFound(new { message = "Pasajero no encontrado" });
                 }
-                var pasajeroToUpdate = _mapper.Map<Pasajero>(pasajeroDto);
-                await _pasajeroService.UpdatePasajero(pasajeroToUpdate);
-                var resultDto = _mapper.Map<PasajeroDto>(pasajeroToUpdate);
-                return Ok(new ApiResponse<PasajeroDto>(resultDto));
+
+                // CORRECCIÓN: Mapeamos los cambios del DTO DIRECTAMENTE sobre el objeto existente
+                _mapper.Map(pasajeroDto, existingPasajero);
+
+                // Ahora actualizamos el objeto que ya está siendo rastreado
+                await _pasajeroService.UpdatePasajero(existingPasajero);
+
+                var resultDto = _mapper.Map<PasajeroDto>(existingPasajero);
+
+                return Ok(new
+                {
+                    message = "Pasajero actualizado correctamente",
+                    data = resultDto
+                });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Error al actualizar el pasajero", error = ex.Message });
             }
-
         }
 
         [HttpGet]

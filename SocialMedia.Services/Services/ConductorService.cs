@@ -9,39 +9,38 @@ namespace SocialMedia.Services.Services
 {
     public class ConductorService : IConductorService
     {
-        private readonly IConductorRepository _conductorRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ConductorService(IConductorRepository conductorRepository)
+        public ConductorService(IUnitOfWork unitOfWork)
         {
-            _conductorRepository = conductorRepository ?? throw new ArgumentNullException(nameof(conductorRepository));
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
         public async Task InsertConductor(Conductore conductor)
         {
             if (conductor is null) throw new ArgumentNullException(nameof(conductor));
 
-            // Validaciones básicas (ampliar según reglas del negocio)
             if (string.IsNullOrWhiteSpace(conductor.Nombres)) throw new ArgumentException("Nombres inválidos.", nameof(conductor));
             if (string.IsNullOrWhiteSpace(conductor.Correo)) throw new ArgumentException("Correo inválido.", nameof(conductor));
 
-            await _conductorRepository.InsertConductor(conductor).ConfigureAwait(false);
+            await _unitOfWork.ConductorRepository.InsertConductor(conductor);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<Conductore>> GetAllConductoresAsync()
         {
-            return await _conductorRepository.GetAllConductoresAsync().ConfigureAwait(false);
+            return await _unitOfWork.ConductorRepository.GetAllConductoresAsync();
         }
 
         public async Task UpdateConductor(int id, Conductore conductor)
         {
             if (conductor is null) throw new ArgumentNullException(nameof(conductor));
 
-            var existing = await _conductorRepository.GetConductorByIdAsync(id).ConfigureAwait(false);
+            var existing = await _unitOfWork.ConductorRepository.GetConductorByIdAsync(id);
 
             if (existing == null)
                 throw new KeyNotFoundException($"Conductor con id {id} no encontrado.");
 
-            // Actualizar campos permitidos
             existing.Nombres = conductor.Nombres;
             existing.Apellidos = conductor.Apellidos;
             existing.Correo = conductor.Correo;
@@ -49,17 +48,19 @@ namespace SocialMedia.Services.Services
             existing.Telefono = conductor.Telefono;
             existing.NumeroLicencia = conductor.NumeroLicencia;
 
-            await _conductorRepository.UpdateConductor(existing).ConfigureAwait(false);
+            await _unitOfWork.ConductorRepository.UpdateConductor(existing);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task DeleteConductor(int id)
         {
-            var existing = await _conductorRepository.GetConductorByIdAsync(id).ConfigureAwait(false);
+            var existing = await _unitOfWork.ConductorRepository.GetConductorByIdAsync(id);
 
             if (existing == null)
                 throw new KeyNotFoundException($"Conductor con id {id} no encontrado.");
 
-            await _conductorRepository.DeleteConductor(existing).ConfigureAwait(false);
+            await _unitOfWork.ConductorRepository.DeleteConductor(existing);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }
