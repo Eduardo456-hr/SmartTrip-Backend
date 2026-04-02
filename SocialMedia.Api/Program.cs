@@ -1,11 +1,12 @@
-
 using Microsoft.EntityFrameworkCore;
 using SocialMedia.Core.Interfaces;
 using SocialMedia.Infrastructure.Data;
 using SocialMedia.Infrastructure.Repositories;
 using SocialMedia.Services.Interfaces;
 using SocialMedia.Services.Services;
-
+using FluentValidation;
+using SocialMedia.Core.DTOs;
+using SocialMedia.Services.Validators;
 
 namespace SocialMedia.Api
 {
@@ -15,73 +16,46 @@ namespace SocialMedia.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
-            #region Configurar la BD SqlServer
-            //var connectionString = builder.Configuration.GetConnectionString("ConnectionSqlServer");
-            //builder.Services.AddDbContext<SocialMediaContext>(options => options.UseSqlServer(connectionString));
-            #endregion
-
-            #region Configurar la BD MySql
+            // 1. Configurar la BD MySql
             var connectionString = builder.Configuration.GetConnectionString("ConnectionMySql");
             builder.Services.AddDbContext<SmartTripContext>(options =>
                 options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
-            #endregion
 
-            builder.Services.AddTransient<IConductorRepository, ConductorRepository>();
-
-            //Registrar los servicios
-            //builder.Services.AddTransient<IPostRepository, PostRepository>();
-            //builder.Services.AddTransient<IUserRepository, UserRepository>();
-
+            // 2. Controladores y JSON (Manejo de referencias circulares)
             builder.Services.AddControllers()
-                .AddNewtonsoftJson(
-                options =>
-                { 
-                    options.SerializerSettings.ReferenceLoopHandling
-                     = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-                }
-             );
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                });
 
-            // Registrar AutoMapper
-            builder.Services.AddAutoMapper(typeof(SocialMedia.Infrastructure.Mappings.ConductorProfile).Assembly);
+            // 3. Registrar AutoMapper (Usamos un perfil para localizar el Assembly)
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-            // Registrar FluentValidation
-            builder.Services.AddTransient<FluentValidation.IValidator<SocialMedia.Core.DTOs.ConductorDto>, SocialMedia.Services.Validators.ConductorDtoValidator>();
-
-            #region Registrar conductores, pasajeros y autenticación
-            // builder.Services.AddTransient<IConductorService, ConductorService>();
-
-            // builder.Services.AddTransient<IPasajeroRepository, PasajeroRepository>();
-
+            // 4. EL MOTOR: Registrar Unit of Work (Scoped es mejor para transacciones)
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+            // 5. REGISTRAR SERVICIOS (Lógica de Negocio)
+            // IMPORTANTE: Quitamos los Repositorios individuales de aquí, el UoW los maneja.
+            builder.Services.AddTransient<IConductorService, ConductorService>();
             builder.Services.AddTransient<IPasajeroService, PasajeroService>();
-            builder.Services.AddTransient<FluentValidation.IValidator<SocialMedia.Core.DTOs.PasajeroDto>, SocialMedia.Services.Validators.PasajeroDtoValidator>();
-
             builder.Services.AddTransient<IAuthService, AuthService>();
-            builder.Services.AddTransient<FluentValidation.IValidator<SocialMedia.Core.DTOs.LoginDto>, SocialMedia.Services.Validators.LoginDtoValidator>();
 
+            // 6. VALIDACIONES (FluentValidation)
+            builder.Services.AddTransient<IValidator<ConductorDto>, ConductorDtoValidator>();
+            builder.Services.AddTransient<IValidator<PasajeroDto>, PasajeroDtoValidator>();
+            builder.Services.AddTransient<IValidator<LoginDto>, LoginDtoValidator>();
 
-            #endregion
-
-
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
 
             app.Run();

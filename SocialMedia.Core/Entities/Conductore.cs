@@ -1,23 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 
-namespace SocialMedia.Core.Entities;
-
-public partial class Conductore
+namespace SocialMedia.Core.Entities
 {
-    public int Id { get; set; }
+    public partial class Conductore
+    {
+        public int UsuarioId { get; set; }
 
-    public string Nombres { get; set; } = null!;
+        public string Nombres { get; set; } = null!;
 
-    public string Apellidos { get; set; } = null!;
+        public string Apellidos { get; set; } = null!;
 
-    public string Correo { get; set; } = null!;
+        public string Telefono { get; set; } = null!;
 
-    public string Contrasena { get; set; } = null!;
+        public string NumeroLicencia { get; set; } = null!;
 
-    public string Telefono { get; set; } = null!;
-
-    public string NumeroLicencia { get; set; } = null!;
-
-    public DateTime? FechaRegistro { get; set; }
+        public virtual Usuario Usuario { get; set; } = null!;
+    }
 }

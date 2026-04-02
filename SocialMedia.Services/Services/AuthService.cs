@@ -18,35 +18,33 @@ namespace SocialMedia.Services.Services
 
         public async Task<LoginResponseDto> LoginAsync(LoginDto loginDto)
         {
-            // Buscar en Pasajeros primero a través de la Unidad de Trabajo
+       
             var pasajero = await _unitOfWork.PasajeroRepository.GetPasajeroByCorreoAsync(loginDto.Correo);
 
-            if (pasajero != null && pasajero.Contrasena == loginDto.Contrasena)
+            if (pasajero != null && pasajero.Usuario.Contrasena == loginDto.Contrasena)
             {
                 return new LoginResponseDto
                 {
-                    Id = pasajero.Id,
+                    Id = pasajero.UsuarioId,
                     Nombres = $"{pasajero.Nombres} {pasajero.Apellidos}",
-                    Correo = pasajero.Correo,
-                    Rol = "Pasajero"
+                    Correo = pasajero.Usuario.Correo,
+                    Rol = pasajero.Usuario.Rol
                 };
             }
 
-            // Si no es pasajero, buscar en Conductores a través de la Unidad de Trabajo
             var conductor = await _unitOfWork.ConductorRepository.GetConductorByCorreoAsync(loginDto.Correo);
 
-            if (conductor != null && conductor.Contrasena == loginDto.Contrasena)
+            if (conductor != null && conductor.Usuario.Contrasena == loginDto.Contrasena)
             {
                 return new LoginResponseDto
                 {
-                    Id = conductor.Id,
+                    Id = conductor.UsuarioId,
                     Nombres = $"{conductor.Nombres} {conductor.Apellidos}",
-                    Correo = conductor.Correo,
-                    Rol = "Conductor"
+                    Correo = conductor.Usuario.Correo,
+                    Rol = conductor.Usuario.Rol
                 };
             }
 
-            // Si no coincide nada, lanzamos una excepción
             throw new Exception("Correo o contraseña incorrectos.");
         }
     }
