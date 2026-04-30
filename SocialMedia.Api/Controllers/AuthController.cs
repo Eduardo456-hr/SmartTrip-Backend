@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
 using SocialMedia.Api.Responses;
 using SocialMedia.Core.DTOs;
 using SocialMedia.Services.Interfaces;

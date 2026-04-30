@@ -46,6 +46,12 @@ namespace SocialMedia.Api
             builder.Services.AddTransient<IValidator<LoginDto>, LoginDtoValidator>();
 
             builder.Services.AddOpenApi();
+            builder.Services.AddSingleton<IDbConnectionFactory, DapperContext>();
+
+            builder.Services.AddTransient<IViajeService, ViajeService>();
+
+            builder.Services.AddTransient<IValidator<CrearViajeDto>, CrearViajeDtoValidator>();
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             var app = builder.Build();
 

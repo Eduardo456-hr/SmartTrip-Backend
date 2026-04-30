@@ -7,6 +7,7 @@ namespace SocialMedia.Core.Interfaces
     {
         IPasajeroRepository PasajeroRepository { get; }
         IConductorRepository ConductorRepository { get; }
+        IViajeRepository ViajeRepository { get; }
 
         void SaveChanges();
         Task SaveChangesAsync();

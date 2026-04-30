@@ -21,6 +21,7 @@ public partial class SmartTripContext : DbContext
     public virtual DbSet<Conductore> Conductores { get; set; }
     public virtual DbSet<Pasajero> Pasajeros { get; set; }
 
+    public virtual DbSet<Viaje> Viajes { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
@@ -82,6 +83,28 @@ public partial class SmartTripContext : DbContext
                 .HasForeignKey<Pasajero>(d => d.UsuarioId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_Pasajero_Usuario");
+        });
+
+        modelBuilder.Entity<Viaje>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("viajes");
+
+            entity.Property(e => e.Origen).HasMaxLength(100);
+            entity.Property(e => e.Destino).HasMaxLength(100);
+            entity.Property(e => e.Estado).HasMaxLength(20);
+            entity.Property(e => e.Precio).HasPrecision(10, 2);
+
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Conductor)
+                .WithMany()
+                .HasForeignKey(d => d.ConductorId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Viajes_Conductor");
         });
 
         OnModelCreatingPartial(modelBuilder);
